@@ -7,4 +7,4 @@ server.listen(port,()=>{
     console.log(" listening at 3001");
 })
 
-})
+}).catch(error=>console.log(error.message))
