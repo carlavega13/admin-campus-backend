@@ -1,58 +1,77 @@
-const{User}=require("../db")
-const putUserController=async({firstName,lastName,DNI,phone,email,id,domain})=>{
-try {
-    const userToEdit= await User.findOne({where:{id:id}})
-    if(DNI&&DNI.length>5){
-        const res= await userToEdit.update({
-            firstname:firstName,
-            lastname:lastName,
-            fullname:`${firstName} ${lastName}`,
-            dni:DNI.toString(),
-            phone:phone,
-            email:email,
-           
-        })
-  return {
-    id:res.id,
-    username:res.username,
-    token:res.token,
-    rol:res.rol,
-    isSuperAdmin:res.isSuperAdmin,
-     firsname:res.firsname,
-     lastname:res.lastname,
-     phone:res.phone,
-     email:res.email,
-     fullname:`${res.firstname} ${res.lastname}`,
-     domain:domain
-   }
-    }else{
-
-        const res1= await userToEdit.update({
-            firstname:firstName,
-            lastname:lastName,
-            phone:phone,
-            email:email,
-            fullname:`${firstName} ${lastName}`,
-           
-        })
-        
-       
-               return {
-                id:res1.id,
-                username:res1.username,
-                token:res1.token,
-                rol:res1.rol,
-                isSuperAdmin:res1.isSuperAdmin,
-                 firsname:res1.firsname,
-                 lastname:res1.lastname,
-                 phone:res1.phone,
-                 email:res1.email,
-                 fullname:`${res1.firstname} ${res1.lastname}`,
-                 domain:domain
-               }
+const { User } = require("../db");
+const editUserMoodle = require("./usersControlllers/editUserMoodle");
+const putUserController = async ({
+  firstName,
+  lastName,
+  dni,
+  phone,
+  email,
+  id,
+  domain,
+  token,
+}) => {
+  try {
+    const userToEdit = await User.findOne({ where: { id: id } });
+    const editMoodle = await editUserMoodle({
+      domain: domain,
+      token: token,
+      info: {
+        id: id,
+        firstname: firstName,
+        lastname: lastName,
+        phone1: phone,
+      },
+    });
+    let info = {
+      firstname: firstName,
+      lastname: lastName,
+      fullname: `${firstName} ${lastName}`,
+      phone: phone,
+ 
+    };
+    if(email){
+      info.email=email
     }
-} catch (error) {
-    
-}
-}
-module.exports=putUserController
+    let res
+    if (dni && dni.toString().length > 5) {
+      // info.dni = dni.toString();
+   res = await userToEdit.update({
+        ...info,
+      dni:dni.toString()
+      });
+      return {
+        id: res.id,
+        username: res.username,
+        token: res.token,
+        rol: res.rol,
+        isSuperAdmin: res.isSuperAdmin,
+        firstname: res.firstname,
+        lastname: res.lastname,
+        phone: res.phone,
+        email: res.email,
+        fullname: `${res.firstname} ${res.lastname}`,
+        domain: domain,
+      };
+    } else {
+      res = await userToEdit.update(info);
+
+      return {
+        id: res.id,
+        username: res.username,
+        token: res.token,
+        rol: res.rol,
+        isSuperAdmin: res.isSuperAdmin,
+        firstname: res.firstname,
+        lastname: res.lastname,
+        phone: res.phone,
+        email: res.email,
+        fullname: `${res.firstname} ${res.lastname}`,
+        domain: domain,
+      };
+    }
+  } catch (error) {
+console.log(error.message);
+    throw new Error(error.message);
+  }
+};
+module.exports = putUserController;

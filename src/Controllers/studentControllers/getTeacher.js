@@ -1,20 +1,25 @@
 const axios = require("axios");
 const { User } = require("../../db");
-const getAllUsersController = async (info) => {
+
+const getTeacher = async ({ token, courseid, domain }) => {
   try {
-    const { domain, token } = info;
     const people = await axios.get(`${domain}/webservice/rest/server.php`, {
       params: {
         wstoken: token,
         wsfunction: "core_enrol_get_enrolled_users ",
         moodlewsrestformat: "json",
-        courseid: 1,
+        courseid: courseid,
       },
     });
+    const res = people.data.filter(
+      (people) =>
+        people.roles[0].shortname == "teacher" ||
+        people.roles[0].shortname == "editingteacher"
+    );
 
-    return people.data;
+    return res;
   } catch (error) {
     throw new Error(error.message);
   }
 };
-module.exports = getAllUsersController;
+module.exports = getTeacher;
